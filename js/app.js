@@ -6,6 +6,28 @@ const FemaleImg=`/../images/female.png`
 
 const showPlayerDetailsonRight=document.getElementById('right-side');
 
+const allPlayerRow=document.getElementById('all-player-row');
+
+const MainUrl=(searchBoxValue)=>{
+const url =`https://www.thesportsdb.com/api/v1/json/2/searchplayers.php?p=${searchBoxValue}`
+
+                fetch(url)
+                .then(res=>res.json())
+                .then(data=>displayPlayer(data))
+     
+}
+
+const subUrlId=(id)=>{
+
+        const url=`https://www.thesportsdb.com/api/v1/json/2/lookupplayer.php?id=${id}`
+
+        console.log(url);
+        fetch(url)
+        .then(res=>res.json())
+        .then(data=>rightSidePlayerDetails(data.players[0]))
+
+}
+
 // document.getElementById('male').style.display='none';
 // document.getElementById('female').style.display='none';
 const PlayerSearch=(searchbtn,searchbox)=>{
@@ -15,22 +37,46 @@ document.getElementById(searchbtn).addEventListener('click', function(e){
 
         const  searchBoxValue=searchBox.value
 
-        if(isNaN(searchBoxValue)){
-                console.log(searchBox.value)
+        if(!isNaN(searchBoxValue)){
+                // console.log(searchBox.value)
 
-                const url =`https://www.thesportsdb.com/api/v1/json/2/searchplayers.php?p=${searchBoxValue}`
+                // const url =`https://www.thesportsdb.com/api/v1/json/2/searchplayers.php?p=${searchBoxValue}`
 
-                fetch(url)
-                .then(res=>res.json())
-                .then(data=>displayPlayer(data))
+                // fetch(url)
+                // .then(res=>res.json())
+                // .then(data=>displayPlayer(data))
 
-                searchBox.value=''
+                // searchBox.value=''
+
+                showPlayerDetailsonRight.innerHTML=``
+
+                allPlayerRow.innerHTML=``;
+
+
+                document.getElementById('error-message').innerHTML=`<span>you have search with worong value</span>`
+                // alert('wrong')
+
+                searchBox.value=``;
 
         }
 
 
         else{
-                return false
+                console.log(searchBox.value)
+
+                // const url =`https://www.thesportsdb.com/api/v1/json/2/searchplayers.php?p=${searchBoxValue}`
+
+                // fetch(url)
+                // .then(res=>res.json())
+                // .then(data=>displayPlayer(data))
+
+                MainUrl(searchBoxValue)
+
+                searchBox.value=''
+
+                document.getElementById('error-message').innerHTML=``
+
+                document.getElementById('spinner').innerHTML=`<img src=${imgurl}>`
         }
 
         showPlayerDetailsonRight.innerHTML='';
@@ -41,9 +87,20 @@ document.getElementById(searchbtn).addEventListener('click', function(e){
 
 const displayPlayer=(players)=>{
 console.log(players)
-const allPlayers=players.player
 
-const allPlayerRow=document.getElementById('all-player-row');
+// if (players===''){
+//         alert('no player found')
+// }
+const allPlayers=players.player
+console.log(allPlayers)
+
+if (allPlayers===null){
+        // alert('no player found')
+
+        document.getElementById('error-message').innerHTML=`<h2>no player found on this name</h2>`
+}
+
+
 
 allPlayerRow.innerHTML=``;
 
@@ -69,6 +126,7 @@ for(const player of allPlayers){
           <h5 class="card-title">Name:${player.strPlayer}</h5>
           <p class="card-text"> Sports:${player.strSport}.</p>
           <a onclick="playerdetails(${player.idPlayer})" id="playerdetails" class="btn  btn-primary">see details</a>
+          <a class="btn btn-danger delete-btn">Remove</a>
          
           
         </div>
@@ -77,18 +135,39 @@ for(const player of allPlayers){
       allPlayerRow.appendChild(div)
 
 }
+
+const deleteButtons=document.getElementsByClassName('delete-btn')
+
+for(const deleteBtn of deleteButtons){
+
+        deleteBtn.addEventListener('click', function(e){
+                console.log(e.target.parentNode.parentNode.parentNode)
+
+                e.target.parentNode.parentNode.parentNode.style.display='none'
+        })
 }
+
+document.getElementById('spinner').innerHTML=``
+
+}
+
+
+
+
 
 // }
 
 const playerdetails=(id)=>{
-        console.log(id)
+        // console.log(id)
         const url=`https://www.thesportsdb.com/api/v1/json/2/lookupplayer.php?id=${id}`
 
         console.log(url);
         fetch(url)
         .then(res=>res.json())
         .then(data=>rightSidePlayerDetails(data.players[0]))
+
+        // subUrlId(id)
+
         showPlayerDetailsonRight.style.display='block'
 
 
@@ -158,6 +237,8 @@ document.getElementById('playerdetails-delete').addEventListener('click',functio
 
 
 }
+
+
 
 
 PlayerSearch('search-btn','search-box')
